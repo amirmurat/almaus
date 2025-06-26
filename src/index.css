@@ -1,5 +1,107 @@
-*{box-sizing:border-box;margin:0;padding:0;font-family:Roboto,Arial,Helvetica,sans-serif}
-body{padding-bottom:56px;background:#fafafa}
-button,input{padding:8px;border:1px solid #ccc;border-radius:4px;font-size:14px}
-button{cursor:pointer;background:#673ab7;color:#fff;border:none}
-h4{font-size:14px;font-weight:500;color:#555}
+/* ---------- CSS‑переменные для светлой / тёмной темы ---------- */
+:root {
+  /* базовые */
+  --bg:      #fafafa;
+  --text:    #000000;
+  --card:    #ffffff;
+  --border:  #cccccc;
+  --primary: #673ab7;
+
+  /* цвета статусов (СВЕТЛАЯ) */
+  --ongoing:  #a5d6a7;  /* мягкий зелёный   */
+  --upcoming: #ffe082;  /* пастельный янтарь*/
+  --passed:   #e0e0e0;  /* светлый серый    */
+  --upcomingTask: #ffecb3;
+}
+
+
+:root[data-theme='dark'] {
+  /* базовые */
+  --bg:      #121212;
+  --text:    #e0e0e0;
+  --card:    #1e1e1e;
+  --border:  #444444;
+  --primary: #bb86fc;
+
+  /* цвета статусов (ТЁМНАЯ) */
+  --ongoing:  #388e3c;  /* приглушённый зелёный */
+  --upcoming: #f9a825;  /* мягкий янтарно‑жёлтый */
+  --passed:   #303030;  /* тёмный графит         */
+  --upcomingTask: #5d4037;
+}
+
+/* ---------------- БАЗОВЫЕ СБРОСЫ ---------------- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Roboto, Arial, Helvetica, sans-serif;
+  transition:
+    background-color .2s linear,
+    color            .2s linear,
+    border-color     .2s linear;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  padding-bottom: 56px;         /* место под нижнюю навигацию */
+}
+
+/* ------------- ЭЛЕМЕНТЫ УПРАВЛЕНИЯ ------------- */
+button,
+input,
+textarea {
+  padding: 8px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+}
+
+button {
+  cursor: pointer;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+}
+
+/* ----------- КАРТОЧКИ, НАВИГАЦИЯ, АНОНСЫ -------- */
+.card,
+.lesson-card,
+.task-card,
+.announce,
+.bottom-nav {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  margin: 6px;
+}
+
+/* модификаторы статуса пары */
+.card.ongoing  { background: var(--ongoing); }
+.card.upcoming { background: var(--upcoming); }
+.card.passed   { background: var(--passed);   }
+
+/* фон выполненного задания (зелёный как ongoing) */
+.card.done { background: var(--ongoing); }
+
+/* Заголовки внутри расписания / недели */
+h4 {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* ---------- «Грубый» хук на inline‑#fff ----------
+   Перекрашивает старые inline‑фоны, чтобы они не оставались белыми
+   в тёмной теме. Работает для всех элементов с inline‑style. */
+:root[data-theme='dark'] [style*="background:#fff"],
+:root[data-theme='dark'] [style*="background: #fff"] {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
