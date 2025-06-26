@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "subject": "Maths",
+    "title": "Solve problem №5",
+    "deadline": "2025-10-01",
+    "description": "Решить номер 5 из сборника Садовничего, стр. 42. Загрузить PDF со сканом."
+  },
+  {
+    "id": 2,
+    "subject": "Physics",
+    "title": "Essay on Nikola Tesla",
+    "deadline": "2025-10-03",
+    "description": "Краткое эссе (1‑2 стр.) о вкладе Теслы в развитие переменного тока."
+  }
+]

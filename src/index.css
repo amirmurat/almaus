@@ -1,0 +1,5 @@
+*{box-sizing:border-box;margin:0;padding:0;font-family:Roboto,Arial,Helvetica,sans-serif}
+body{padding-bottom:56px;background:#fafafa}
+button,input{padding:8px;border:1px solid #ccc;border-radius:4px;font-size:14px}
+button{cursor:pointer;background:#673ab7;color:#fff;border:none}
+h4{font-size:14px;font-weight:500;color:#555}

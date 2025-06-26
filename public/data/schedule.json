@@ -1,0 +1,42 @@
+{
+  "week": [
+    {                       
+      "date": "2025-09-29",
+      "lessons": [
+        { "id": 1, "start": "08:30", "end": "09:15", "subject": "Maths",   "type": "Lecture", "theme": "Limits",      "room": "A-203" },
+        { "id": 2, "start": "09:25", "end": "10:10", "subject": "Physics", "type": "Lab",     "theme": "Dynamics",    "room": "B-112" }
+      ]
+    },
+    {                       
+      "date": "2025-09-30",
+      "lessons": [
+        { "id": 3, "start": "08:30", "end": "09:15", "subject": "English", "type": "Seminar", "theme": "Essay",       "room": "C-018" }
+      ]
+    },                       
+    {                       
+      "date": "2025-10-01",
+      "lessons": [
+        { "id": 4, "start": "08:30", "end": "09:15", "subject": "Chemistry", "type": "Lecture", "theme": "Organic",   "room": "D-101" },
+        { "id": 5, "start": "09:25", "end": "10:10", "subject": "Biology",   "type": "Lab",     "theme": "Cell Biology", "room": "E-202" }
+      ]
+    },
+    {                       
+      "date": "2025-10-02",
+      "lessons": [
+        { "id": 6, "start": "08:30", "end": "09:15", "subject": "History",   "type": "Seminar",  "theme": "World War II",  "room": "F-303" }
+      ]
+    },
+    {                       
+      "date": "2025-10-03",
+      "lessons": [
+        { "id": 7, "start": "08:30", "end": "09:15", "subject": "Geography",  "type": "Lecture",  "theme": "Climate Change",  "room": null }
+      ]
+    },                       
+    {                       
+      "date": "2025-10-04",
+      "lessons": [
+        { "id": 8, "start": "08:30", "end": "09:15", "subject": "Art",        "type": "Workshop",  "theme": "Sculpture",  "room": "G-404" }
+      ]
+    }
+  ]
+}
