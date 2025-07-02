@@ -40,6 +40,7 @@
     background-color .2s linear,
     color            .2s linear,
     border-color     .2s linear;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
