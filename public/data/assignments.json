@@ -17,14 +17,35 @@
     "id": 3,
     "subject": "Chemistry",
     "title": "Lab report: Acids vs Bases",
-    "deadline": "2025-06-27",
+    "deadline": "2025-10-01",
     "description": "Сдать отчёт по лабораторной работе: титрование щёлочи кислотой."
   },
   {
     "id": 4,
     "subject": "History",
     "title": "Presentation on the Silk Road",
-    "deadline": "2025-06-28",
+    "deadline": "2025-10-02",
     "description": "Слайды + краткая речь (3‑4 мин) о значении Шёлкового пути."
+  },
+  {
+    "id": 5,
+    "subject": "Biology",
+    "title": "Prepare cell structure poster",
+    "deadline": "2025-10-01",
+    "description": "Сделать постер по строению клетки. Принести на занятие."
+  },
+  {
+    "id": 6,
+    "subject": "English",
+    "title": "Write an essay: My Future Profession",
+    "deadline": "2025-09-30",
+    "description": "Краткое эссе на тему 'Моя будущая профессия'."
+  },
+  {
+    "id": 7,
+    "subject": "Chemistry",
+    "title": "Test: Organic Chemistry",
+    "deadline": "2025-10-01",
+    "description": "Пройти онлайн-тест по органической химии."
   }
 ]
