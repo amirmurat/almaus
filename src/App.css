@@ -36,3 +36,21 @@
     transform: rotate(360deg);
   }
 }
+
+.announcements-list {
+  margin-left: 24px;
+}
+@media (min-width: 900px) {
+  .announcements-list {
+    margin-left: 40px;
+  }
+}
+
+/* Стили для страницы деталей анонса */
+.announcement-details-title {
+  font-weight: 400 !important;
+}
+
+.announcement-details-category {
+  font-weight: 400 !important;
+}

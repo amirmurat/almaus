@@ -57,8 +57,7 @@ export default function Schedule() {
   const monthStart = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1);
   const monthEnd = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 0);
   const daysInMonth = monthEnd.getDate();
-  // Собираем все даты с парами
-  const daysWithLessons = new Set((week||[]).map(d => d.date));
+
   // Для сетки календаря
   const firstDayIdx = (monthStart.getDay() + 6) % 7; // 0=Пн
   const calendarDays = [];
@@ -103,7 +102,7 @@ export default function Schedule() {
           margin: '8px 0',
           fontWeight: isToday ? 700 : 500,
             color: isToday ? 'var(--accent, #1976d2)' : 'var(--text)',
-          fontSize: 17,
+          fontSize: '18px',
             opacity: isToday ? 1 : isPast ? 0.7 : 0.9,
             filter: isPast ? 'grayscale(0.08)' : 'none',
             cursor: 'pointer',
@@ -277,8 +276,7 @@ export default function Schedule() {
                   fontWeight: isSelected || isToday ? 700 : 500,
                   position:'relative',transition:'background 0.18s,color 0.18s',
                   outline: 'none',
-                  zIndex:1,
-                  background: 'none'
+                  zIndex:1
                 }}
                   onClick={() => {
                     if (hasLessons) {

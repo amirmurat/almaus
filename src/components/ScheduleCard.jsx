@@ -56,6 +56,7 @@ function ScheduleCard({ lesson, status, onClick, highlight, hasHomework, noIcon,
         opacity: forceOpaque ? 1 : (isPassed ? 0.55 : 1),
         color: isPassed && !forceOpaque ? '#888' : 'inherit',
         filter: isPassed && !forceOpaque ? 'grayscale(0.2)' : 'none',
+        fontSize: 15,
       }}
     >
       {!noStripe && <div className="schedule-card-stripe" style={{background: statusColor[mainStatus] || '#bbb'}} />}

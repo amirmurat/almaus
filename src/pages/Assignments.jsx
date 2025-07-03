@@ -96,7 +96,7 @@ export default function Assignments() {
               style={{
                 margin: '18px 0 10px 0',
                 fontWeight: 500,
-                fontSize: 18,
+                fontSize: '18px',
                 color: '#23272f',
                 cursor: 'pointer',
                 userSelect: 'none',

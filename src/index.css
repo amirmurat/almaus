@@ -47,6 +47,38 @@ body {
   background: var(--bg);
   color: var(--text);
   padding-bottom: 56px;         /* место под нижнюю навигацию */
+  font-size: 15px;
+}
+
+h1 {
+  font-size: 2.1rem;
+  font-weight: 700;
+  margin: 0.7em 0 0.4em 0;
+}
+h2 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin: 0.6em 0 0.3em 0;
+}
+h3 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin: 0.5em 0 0.3em 0;
+}
+h4 {
+  font-size: 1.05rem;
+  font-weight: 500;
+  margin: 0.4em 0 0.2em 0;
+}
+h5 {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 0.3em 0 0.2em 0;
+}
+h6 {
+  font-size: 0.85rem;
+  font-weight: 400;
+  margin: 0.2em 0 0.1em 0;
 }
 
 /* ------------- ЭЛЕМЕНТЫ УПРАВЛЕНИЯ ------------- */
@@ -110,5 +142,18 @@ h4 {
   background: var(--card) !important;
   color: var(--text) !important;
   border-color: var(--border) !important;
+}
+
+.announcements-list ~ h3, .announcements-list + h3, .announcements-list h3, .announcements-list ~ section h3, .announcements-list ~ div h3, .announcements-list ~ * h3 {
+  font-weight: 400 !important;
+}
+
+.announcement-category-title,
+.announcement-details-title {
+  font-weight: 400 !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 400 !important;
 }
 
