@@ -3,49 +3,56 @@
     "id": 1,
     "subject": "Maths",
     "title": "Solve problem №5",
-    "deadline": "2025-10-01",
+    "deadline": "2025-06-30",
     "description": "Решить номер 5 из сборника Садовничего, стр. 42. Загрузить PDF со сканом."
   },
   {
     "id": 2,
     "subject": "Physics",
     "title": "Essay on Nikola Tesla",
-    "deadline": "2025-10-03",
+    "deadline": "2025-07-01",
     "description": "Краткое эссе (1‑2 стр.) о вкладе Теслы в развитие переменного тока."
   },
   {
     "id": 3,
     "subject": "Chemistry",
     "title": "Lab report: Acids vs Bases",
-    "deadline": "2025-10-01",
+    "deadline": "2025-07-02",
     "description": "Сдать отчёт по лабораторной работе: титрование щёлочи кислотой."
   },
   {
     "id": 4,
     "subject": "History",
     "title": "Presentation on the Silk Road",
-    "deadline": "2025-10-02",
+    "deadline": "2025-07-03",
     "description": "Слайды + краткая речь (3‑4 мин) о значении Шёлкового пути."
   },
   {
     "id": 5,
     "subject": "Biology",
     "title": "Prepare cell structure poster",
-    "deadline": "2025-10-01",
+    "deadline": "2025-07-04",
     "description": "Сделать постер по строению клетки. Принести на занятие."
   },
   {
     "id": 6,
     "subject": "English",
     "title": "Write an essay: My Future Profession",
-    "deadline": "2025-09-30",
+    "deadline": "2025-07-05",
     "description": "Краткое эссе на тему 'Моя будущая профессия'."
   },
   {
     "id": 7,
     "subject": "Chemistry",
     "title": "Test: Organic Chemistry",
-    "deadline": "2025-10-01",
+    "deadline": "2025-07-06",
     "description": "Пройти онлайн-тест по органической химии."
+  },
+  {
+    "id": 8,
+    "subject": "Maths",
+    "title": "Online test in Maths",
+    "deadline": "2025-07-03",
+    "description": "Пройти онлайн-тест по математике. Время: 13:00–14:00."
   }
 ]

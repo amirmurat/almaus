@@ -26,13 +26,14 @@ export default function Schedule() {
   }
 
   // --- определяем сегодняшний день ---
-  const todayDate = new Date();
-  const todayISO = todayDate.toISOString().slice(0, 10);
+  const todayDateObj = new Date();
+  const pad = n => n.toString().padStart(2, '0');
+  const todayISO = `${todayDateObj.getFullYear()}-${pad(todayDateObj.getMonth() + 1)}-${pad(todayDateObj.getDate())}`;
   let todayIdx = week.findIndex(d => d.date === todayISO);
   if (todayIdx === -1) todayIdx = 0;
 
   // --- сортируем: сегодня всегда сверху ---
-  const sortedWeek = [week[todayIdx], ...week.slice(0, todayIdx), ...week.slice(todayIdx + 1)];
+  const sortedWeek = week;
 
   // --- Проверка наличия домашки для пары ---
   const hasHomeworkFor = (lesson, date) => {
@@ -52,13 +53,21 @@ export default function Schedule() {
 
   // --- Рендер дня ---
   const renderDay = (day, idx) => {
-    const isToday = idx === 0;
+    const isToday = new Date(day.date).toISOString().slice(0, 10) === todayISO;
+    const isPast = new Date(day.date) < new Date(todayISO);
     const lessons = (day.lessons || []);
     if (lessons.length === 0) return null; // не показывать дни без пар
     return (
       <section key={day.date} className="fade-in" style={{ padding: '0 8px', marginTop: isToday ? 12 : 20 }}>
-        <h4 style={{ margin: '8px 0', fontWeight: isToday ? 700 : 500, color: isToday ? 'var(--accent, #1976d2)' : 'var(--text)', fontSize: 17 }}>
-          {isToday ? 'Сегодня' : weekdayI18n[new Date(day.date).getDay() - 1 || 6]} • {day.date}
+        <h4 style={{
+          margin: '8px 0',
+          fontWeight: isToday ? 700 : 500,
+          color: isToday ? 'var(--accent, #1976d2)' : isPast ? '#aaa' : 'var(--text)',
+          fontSize: 17,
+          opacity: isPast ? 0.55 : 1,
+          filter: isPast ? 'grayscale(0.2)' : 'none',
+        }}>
+          {weekdayI18n[new Date(day.date).getDay() === 0 ? 6 : new Date(day.date).getDay() - 1]} • {day.date}
         </h4>
         {lessons.map((lesson, i) => (
           <ScheduleCard
@@ -86,7 +95,7 @@ export default function Schedule() {
 
   return (
     <div>
-      {sortedWeek.map(renderDay)}
+      {week.map(renderDay)}
       <LessonModal lesson={selectedLesson} onClose={() => setSelectedLesson(null)} tasks={tasks} doneSet={doneSet} onMarkDone={handleMarkDone} />
     </div>
   );

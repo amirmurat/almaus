@@ -48,8 +48,17 @@ function ScheduleCard({ lesson, status, onClick, highlight, hasHomework, noIcon,
   let highlightClass = '';
   if (highlight === 'current') highlightClass = 'schedule-card-current';
   if (highlight === 'next') highlightClass = 'schedule-card-next';
+  const isPassed = status === 'passed';
   const card = (
-    <div className={`schedule-card fade-in schedule-card-modern ${highlightClass}`}>
+    <div
+      className={`schedule-card fade-in schedule-card-modern ${highlightClass}`}
+      style={{
+        opacity: isPassed ? 0.55 : 1,
+        background: isPassed ? 'var(--card-passed, #f5f5f5)' : 'var(--card, #fff)',
+        color: isPassed ? '#888' : 'inherit',
+        filter: isPassed ? 'grayscale(0.2)' : 'none',
+      }}
+    >
       {!noStripe && <div className="schedule-card-stripe" style={{background: statusColor[mainStatus] || '#bbb'}} />}
       <div className="schedule-card-row">
         <div className="schedule-card-left">
