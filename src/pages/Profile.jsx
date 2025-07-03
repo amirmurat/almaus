@@ -25,14 +25,14 @@ export default function Profile() {
   };
 
   return (
-    <div style={{ padding: 16 }}>
+    <div style={{ padding: 16, margin: 8, maxWidth: 680, boxSizing: 'border-box' }}>
       <h2>Профиль студента</h2>
 
       {/* переключатель темы */}
       <p>
         Тема:&nbsp;
-        <button onClick={toggle} style={{ padding: '4px 8px' }}>
-          {theme === 'light' ? 'Переключить на тёмную' : 'Переключить на светлую'}
+        <button onClick={toggle} style={{ padding: '4px 12px', fontSize: 15, border: '1px solid #bbb', borderRadius: 6, background: 'none', cursor: 'pointer' }}>
+          {theme === 'light' ? 'Светлая' : 'Тёмная'}
         </button>
       </p>
 

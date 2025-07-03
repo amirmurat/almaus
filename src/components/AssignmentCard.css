@@ -1,0 +1,27 @@
+.card, .card.archived {
+  background: transparent;
+  color: var(--text);
+  border-radius: 0;
+  padding: 8px;
+  margin: 6px;
+  transition: background 0.08s, box-shadow 0.18s, transform 0.18s;
+}
+.card-modern {
+  position: relative;
+  border-radius: 0 !important;
+  transition: box-shadow 0.18s, transform 0.18s, background 0.08s;
+  margin-bottom: 12px;
+}
+.card:hover, .card-modern:hover {
+  background: var(--card-hover, #f5f7fa);
+  box-shadow: 0 2px 8px 0 rgba(60,60,60,0.07);
+  transform: translateY(-2px) scale(1.01);
+}
+.card:active, .card-modern:active {
+  background: var(--card-active, #e3eafc);
+  box-shadow: 0 1px 4px 0 rgba(60,60,60,0.04);
+  transform: scale(0.98);
+}
+.card.archived {
+  opacity: 0.65;
+} 

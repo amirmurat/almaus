@@ -39,17 +39,25 @@ function subjectIcon(subject) {
 
 /**
  * Карточка пары расписания
- * @param {{ lesson: Object, status?: string, onClick?: function, highlight?: string, hasHomework: boolean, noIcon?: boolean, noStripe?: boolean }} props
+ * @param {{ lesson: Object, status?: string, onClick?: function, highlight?: string, hasHomework: boolean, noIcon?: boolean, noStripe?: boolean, forceOpaque?: boolean }} props
  */
-function ScheduleCard({ lesson, status, onClick, highlight, hasHomework, noIcon, noStripe }) {
+function ScheduleCard({ lesson, status, onClick, highlight, hasHomework, noIcon, noStripe, forceOpaque }) {
   const { start, end, subject, room, status: lessonStatus, intervals } = lesson;
   // intervals: [{start, end, status}] — если есть дополнительные интервалы
   const mainStatus = lessonStatus || status;
   let highlightClass = '';
   if (highlight === 'current') highlightClass = 'schedule-card-current';
   if (highlight === 'next') highlightClass = 'schedule-card-next';
+  const isPassed = status === 'passed';
   const card = (
-    <div className={`schedule-card fade-in schedule-card-modern ${highlightClass}`}>
+    <div
+      className={`schedule-card schedule-card-modern ${highlightClass}`}
+      style={{
+        opacity: forceOpaque ? 1 : (isPassed ? 0.55 : 1),
+        color: isPassed && !forceOpaque ? '#888' : 'inherit',
+        filter: isPassed && !forceOpaque ? 'grayscale(0.2)' : 'none',
+      }}
+    >
       {!noStripe && <div className="schedule-card-stripe" style={{background: statusColor[mainStatus] || '#bbb'}} />}
       <div className="schedule-card-row">
         <div className="schedule-card-left">

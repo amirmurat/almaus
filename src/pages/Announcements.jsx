@@ -6,5 +6,7 @@ export default function Announcements(){
   const[notes,setNotes]=useState(null);
   useEffect(()=>{fetchJson('announcements.json').then(setNotes);},[]);
   if(!notes) return <p style={{textAlign:'center',marginTop:'20vh'}}>Загрузка…</p>;
-  return <ul style={{listStyle:'none',padding:12}}>{notes.map(n=><AnnouncementItem key={n.id} note={n}/>)}</ul>;
+  return <div style={{padding:16,margin:8,maxWidth:680,boxSizing:'border-box'}}>
+    {notes.map(n=><AnnouncementItem key={n.id} note={n}/>)}
+  </div>;
 }

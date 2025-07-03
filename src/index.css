@@ -5,7 +5,7 @@
   --text:    #000000;
   --card:    #ffffff;
   --border:  #cccccc;
-  --primary: #673ab7;
+  --primary: #1976d2;
 
   /* цвета статусов (СВЕТЛАЯ) */
   --ongoing:  #a5d6a7;  /* мягкий зелёный   */
@@ -21,7 +21,7 @@
   --text:    #e0e0e0;
   --card:    #1e1e1e;
   --border:  #444444;
-  --primary: #bb86fc;
+  --primary: #1976d2;
 
   /* цвета статусов (ТЁМНАЯ) */
   --ongoing:  #388e3c;  /* приглушённый зелёный */
@@ -72,9 +72,8 @@ button {
 .card,
 .lesson-card,
 .task-card,
-.announce,
-.bottom-nav {
-  background: var(--card);
+.announce {
+  /* background: var(--card); */
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -82,13 +81,19 @@ button {
   margin: 6px;
 }
 
+.bottom-nav {
+  /* background: var(--card); */
+  color: var(--text);
+  border-radius: 8px;
+  padding: 8px;
+  margin: 6px;
+  border: none;
+}
+
 /* модификаторы статуса пары */
 .card.ongoing  { background: var(--ongoing); }
 .card.upcoming { background: var(--upcoming); }
 .card.passed   { background: var(--passed);   }
-
-/* фон выполненного задания (зелёный как ongoing) */
-.card.done { background: var(--ongoing); }
 
 /* Заголовки внутри расписания / недели */
 h4 {
@@ -106,3 +111,4 @@ h4 {
   color: var(--text) !important;
   border-color: var(--border) !important;
 }
+
