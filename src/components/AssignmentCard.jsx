@@ -1,5 +1,6 @@
 // src/components/AssignmentCard.jsx
 import { Link } from 'react-router-dom';
+import './AssignmentCard.css';
 
 // --- Хелпер для подсчёта времени до дедлайна ---
 const parseDeadline = (deadlineStr, id) => {
@@ -41,18 +42,15 @@ const formatDateTime = (isoStr, id) => {
 
 export default function AssignmentCard({ task, hideSubject, isPastDeadline }) {
   const { id, title, subject, deadline } = task;
-
   /* CSS‑класс card + модификатор archived  */
-  const cls = 'card' + (isPastDeadline ? ' archived' : '');
+  const cls = 'card card-modern' + (isPastDeadline ? ' archived' : '');
   const remainingTime = !isPastDeadline ? getTimeRemaining(deadline, id) : null;
-
   return (
     <Link
       to={`/assignments/${id}`}
       style={{
         textDecoration: 'none',
         color: 'inherit',
-        // pointerEvents: isPastDeadline ? 'none' : 'auto', // разрешить переход всегда
       }}
     >
       <div

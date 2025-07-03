@@ -113,7 +113,6 @@ export default function AssignmentRecord() {
     setPreviewUrl(URL.createObjectURL(merged));
     setSent(true);
     setLoading(false);
-    setTimeout(() => nav(`/assignments/${id}/submissions`), 1200);
   };
 
   // Просмотр объединённого видео

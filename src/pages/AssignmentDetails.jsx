@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchJson } from '../utils/api';
-import { MdAssignment, MdOutlineScreenShare, MdVideocam, MdAttachFile, MdUpload } from 'react-icons/md';
+import { MdOutlineScreenShare, MdVideocam, MdAttachFile, MdUpload } from 'react-icons/md';
+import { addVideoBlob, getAllBlobs, mergeBlobs } from '../utils/videoStore';
 
 // --- Хелпер для форматирования даты и времени ---
 const formatDateTime = (isoStr) => {
@@ -23,9 +24,33 @@ const getTimeRemaining = (deadlineStr) => {
   return null;
 };
 
-function FileAttachButton() {
+function FileAttachButton({ assignmentId }) {
   const inputRef = useRef();
   const [files, setFiles] = useState([]); // [{file, progress, done}]
+
+  // Восстановление файлов из localStorage при монтировании
+  useEffect(() => {
+    const saved = localStorage.getItem('attachments_' + assignmentId);
+    if (saved) {
+      const arr = JSON.parse(saved);
+      setFiles(arr.map(f => ({ ...f, file: null })));
+    }
+  }, [assignmentId]);
+
+  // Сохраняем файлы в localStorage при изменении
+  useEffect(() => {
+    if (files.length > 0) {
+      localStorage.setItem('attachments_' + assignmentId, JSON.stringify(
+        files.map(f => ({
+          ...f,
+          file: undefined,
+          name: f.file ? f.file.name : f.name
+        }))
+      ));
+    } else {
+      localStorage.removeItem('attachments_' + assignmentId);
+    }
+  }, [files, assignmentId]);
 
   // Имитация загрузки для каждого файла
   useEffect(() => {
@@ -102,7 +127,7 @@ function FileAttachButton() {
             }}>
               <div style={{display:'flex',alignItems:'center',gap:10}}>
                 <MdAttachFile style={{fontSize:20,opacity:0.7}}/>
-                <span style={{flex:1}}>{f.file.name}</span>
+                <span style={{flex:1}}>{f.file ? f.file.name : f.name}</span>
                 {f.done && (
                   <svg width="16" height="16" viewBox="0 0 16 16" style={{display:'inline',verticalAlign:'middle',marginRight:2}}>
                     <polyline points="3,9 7,13 13,5" fill="none" stroke="#43a047" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
@@ -249,12 +274,56 @@ export default function AssignmentDetails() {
     }
   }, [cameraStream]);
 
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [mergedUrl, setMergedUrl] = useState(null); // url для просмотра
+
   /* грузим JSON один раз, находим нужный объект */
   useEffect(()=>{
     fetchJson('assignments.json')
       .then(list => list.find(t => String(t.id) === id))
       .then(setTask);
   },[id]);
+
+  useEffect(() => {
+    if (!id) return;
+    getAllBlobs(id).then(blobs => {
+      if (blobs.length) {
+        const merged = mergeBlobs(blobs);
+        setMergedUrl(URL.createObjectURL(merged));
+      } else {
+        setMergedUrl(null);
+      }
+    });
+  }, [id]);
+
+  // Сохранять blob после записи экрана
+  useEffect(() => {
+    if (screenVideoUrl && !screenRecording) {
+      fetch(screenVideoUrl)
+        .then(res => res.blob())
+        .then(blob => addVideoBlob(id, blob).then(() => {
+          getAllBlobs(id).then(blobs => {
+            setMergedUrl(blobs.length ? URL.createObjectURL(mergeBlobs(blobs)) : null);
+          });
+        }));
+    }
+    // eslint-disable-next-line
+  }, [screenVideoUrl, screenRecording]);
+
+  // Сохранять blob после записи с камеры
+  useEffect(() => {
+    if (cameraVideoUrl && !cameraRecording) {
+      fetch(cameraVideoUrl)
+        .then(res => res.blob())
+        .then(blob => addVideoBlob(id, blob).then(() => {
+          getAllBlobs(id).then(blobs => {
+            setMergedUrl(blobs.length ? URL.createObjectURL(mergeBlobs(blobs)) : null);
+          });
+        }));
+    }
+    // eslint-disable-next-line
+  }, [cameraVideoUrl, cameraRecording]);
 
   if(!task) return <p style={{textAlign:'center',marginTop:'20vh'}}>Загрузка…</p>;
 
@@ -266,6 +335,15 @@ export default function AssignmentDetails() {
   //   nav(`/assignments/${id}/record?type=${type}`);
   // };
 
+  async function handleSend() {
+    setSending(true);
+    setSent(false);
+    await new Promise(res => setTimeout(res, 2000));
+    setSending(false);
+    setSent(true);
+    // Не сбрасываем screenVideoUrl и cameraVideoUrl!
+  }
+
   return (
     <div style={{
       padding: '16px',
@@ -273,30 +351,6 @@ export default function AssignmentDetails() {
       maxWidth: 680,
       boxSizing: 'border-box',
     }}>
-      {/* --- Блок прямой трансляции записи экрана --- */}
-      {screenRecording && screenStream && (
-        <div style={{margin:'-8px -16px 24px -16px',padding:'0',background:'#fff',borderRadius:0,boxShadow:'0 2px 12px #0001',border:'1px solid #eee',display:'flex',flexDirection:'column',alignItems:'center'}}>
-          <video ref={videoRef} autoPlay muted style={{width:'100%',maxHeight:320,background:'#000',borderRadius:0}} />
-        </div>
-      )}
-      {/* --- Блок прямой трансляции записи с камеры --- */}
-      {cameraRecording && cameraStream && (
-        <div style={{margin:'-8px -16px 24px -16px',padding:'0',background:'#fff',borderRadius:0,boxShadow:'0 2px 12px #0001',border:'1px solid #eee',display:'flex',flexDirection:'column',alignItems:'center'}}>
-          <video ref={cameraVideoRef} autoPlay muted style={{width:'100%',maxHeight:320,background:'#000',borderRadius:0}} />
-        </div>
-      )}
-      {/* --- Блок предпросмотра после остановки --- */}
-      {screenVideoUrl && !screenRecording && (
-        <div style={{margin:'-8px -16px 24px -16px',padding:'0',background:'#fff',borderRadius:0,boxShadow:'0 2px 12px #0001',border:'1px solid #eee',display:'flex',flexDirection:'column',alignItems:'center'}}>
-          <video src={screenVideoUrl} controls style={{width:'100%',maxHeight:320,background:'#000',borderRadius:0}} />
-        </div>
-      )}
-      {/* --- Блок предпросмотра после остановки записи с камеры --- */}
-      {cameraVideoUrl && !cameraRecording && (
-        <div style={{margin:'-8px -16px 24px -16px',padding:'0',background:'#fff',borderRadius:0,boxShadow:'0 2px 12px #0001',border:'1px solid #eee',display:'flex',flexDirection:'column',alignItems:'center'}}>
-          <video src={cameraVideoUrl} controls style={{width:'100%',maxHeight:320,background:'#000',borderRadius:0}} />
-        </div>
-      )}
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:18,justifyContent:'space-between'}}>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
           <button
@@ -396,29 +450,55 @@ export default function AssignmentDetails() {
                   <MdVideocam />
                 </button>
               )}
-              <button
-                onClick={()=>nav(`/assignments/${id}/submissions`)}
-                aria-label="Мои отправки"
-                title="Мои отправки"
-                style={{
-                  background:'#fff',color:'#23272f',border:'none',borderRadius:0,width:40,height:40,display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,cursor:'pointer',transition:'background .18s,color .18s',outline:'none'
-                }}
-                onMouseDown={e=>e.currentTarget.style.color='var(--primary,#1976d2)'}
-                onMouseUp={e=>e.currentTarget.style.color='#23272f'}
-                onMouseLeave={e=>e.currentTarget.style.color='#23272f'}
-              >
-                <MdAssignment />
-              </button>
             </div>
           )}
         </div>
         {/* Кнопка отправить запись справа */}
-        {(screenVideoUrl && !screenRecording) || (cameraVideoUrl && !cameraRecording) ? (
-          <button style={{background:'#1976d2',color:'#fff',border:'none',borderRadius:0,padding:'0 18px',height:40,fontSize:15,cursor:'pointer',fontWeight:500,letterSpacing:0.2}} onClick={()=>alert('Видео отправлено!')}>Отправить запись</button>
-        ) : null}
+        {mergedUrl && (
+          <button
+            style={{
+              background:'#1976d2',color:'#fff',border:'none',borderRadius:0,padding:'0 18px',height:40,fontSize:15,cursor:sending?'not-allowed':'pointer',fontWeight:500,letterSpacing:0.2,opacity:sending?0.7:1,transition:'opacity .18s'
+            }}
+            onClick={handleSend}
+            disabled={sending}
+          >
+            {sending ? 'Отправка...' : sent ? 'Отправлено!' : 'Отправить запись'}
+          </button>
+        )}
       </div>
+      {/* --- Блок прямой трансляции записи экрана --- */}
+      {screenRecording && screenStream && (
+        <div style={{margin:'-8px -16px 24px -16px',padding:'0',background:'#fff',borderRadius:0,boxShadow:'0 2px 12px #0001',border:'1px solid #eee',display:'flex',flexDirection:'column',alignItems:'center'}}>
+          <video ref={videoRef} autoPlay muted style={{width:'100%',maxHeight:320,background:'#000',borderRadius:0}} />
+        </div>
+      )}
+      {/* --- Блок прямой трансляции записи с камеры --- */}
+      {cameraRecording && cameraStream && (
+        <div style={{margin:'-8px -16px 24px -16px',padding:'0',background:'#fff',borderRadius:0,boxShadow:'0 2px 12px #0001',border:'1px solid #eee',display:'flex',flexDirection:'column',alignItems:'center'}}>
+          <video ref={cameraVideoRef} autoPlay muted style={{width:'100%',maxHeight:320,background:'#000',borderRadius:0}} />
+        </div>
+      )}
+      {/* --- Блок предпросмотра после остановки --- */}
+      {screenVideoUrl && !screenRecording && (
+        <div style={{margin:'-8px -16px 24px -16px',padding:'0',background:'#fff',borderRadius:0,boxShadow:'0 2px 12px #0001',border:'1px solid #eee',display:'flex',flexDirection:'column',alignItems:'center'}}>
+          <video src={screenVideoUrl} controls style={{width:'100%',maxHeight:320,background:'#000',borderRadius:0}} />
+        </div>
+      )}
+      {/* --- Блок предпросмотра после остановки записи с камеры --- */}
+      {cameraVideoUrl && !cameraRecording && (
+        <div style={{margin:'-8px -16px 24px -16px',padding:'0',background:'#fff',borderRadius:0,boxShadow:'0 2px 12px #0001',border:'1px solid #eee',display:'flex',flexDirection:'column',alignItems:'center'}}>
+          <video src={cameraVideoUrl} controls style={{width:'100%',maxHeight:320,background:'#000',borderRadius:0}} />
+        </div>
+      )}
+      {/* Показываем итоговое видео, если есть */}
+      {mergedUrl && (
+        <div style={{margin:'-8px -16px 24px -16px',padding:'0',background:'#fff',borderRadius:0,boxShadow:'0 2px 12px #0001',border:'1px solid #eee',display:'flex',flexDirection:'column',alignItems:'center'}}>
+          <video src={mergedUrl} controls style={{width:'100%',maxHeight:320,background:'#000',borderRadius:0}} />
+        </div>
+      )}
       <h2 style={{margin:'0 0 18px 0',fontWeight:400,fontSize:20,lineHeight:1.22}}>{task.title}</h2>
-      <p style={{margin:'0 0 18px 0',fontSize:15,lineHeight:1.5}}><span style={{fontWeight:400}}>Дедлайн:</span> {formatDateTime(task.deadline)} {remaining && <span style={{color:'#d32f2f'}}>({remaining} осталось)</span>}</p>
+      <p style={{margin:'0 0 18px 0',fontSize:15,lineHeight:1.5}}><span style={{fontWeight:400}}>Дедлайн:</span> {formatDateTime(task.deadline)}</p>
+      {remaining && <div style={{margin:'-14px 0 18px 0',fontSize:15,color:'#d32f2f',fontWeight:400}}>{remaining} осталось</div>}
       <p style={{margin:'0 0 28px 0',fontSize:15,fontWeight:400,lineHeight:1.6}}>{task.description}</p>
 
       {/* Блок прикреплённых учителем файлов */}
@@ -447,7 +527,7 @@ export default function AssignmentDetails() {
       )}
 
       {/* Кнопка для вложения файлов */}
-      <FileAttachButton />
+      <FileAttachButton assignmentId={id} />
 
       <div style={{display:'flex',gap:12,margin:'24px 0'}}>
         {/* Старые кнопки записи убраны */}
