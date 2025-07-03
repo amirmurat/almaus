@@ -52,7 +52,14 @@
     "id": 8,
     "subject": "Maths",
     "title": "Online test in Maths",
-    "deadline": "2025-07-03",
+    "deadline": "2025-07-03T14:00",
     "description": "Пройти онлайн-тест по математике. Время: 13:00–14:00."
+  },
+  {
+    "id": 9,
+    "subject": "History",
+    "title": "Past assignment for archive test",
+    "deadline": "2023-01-01T12:00",
+    "description": "Это задание с прошедшим дедлайном для проверки архива."
   }
 ]

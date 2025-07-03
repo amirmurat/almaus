@@ -31,8 +31,8 @@ export default function Profile() {
       {/* переключатель темы */}
       <p>
         Тема:&nbsp;
-        <button onClick={toggle} style={{ padding: '4px 8px' }}>
-          {theme === 'light' ? 'Переключить на тёмную' : 'Переключить на светлую'}
+        <button onClick={toggle} style={{ padding: '4px 12px', fontSize: 15, border: '1px solid #bbb', borderRadius: 6, background: 'none', cursor: 'pointer' }}>
+          {theme === 'light' ? 'Светлая' : 'Тёмная'}
         </button>
       </p>
 

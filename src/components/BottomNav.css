@@ -1,8 +1,9 @@
 .bottom-nav{
   position:fixed; bottom:0; left:0; right:0;
   display:flex; justify-content:space-around; align-items:center;
-  background: var(--card);          /* ← вместо #fff */
-  padding:6px 0; border-top:1px solid var(--border);
+  background: transparent;
+  padding:6px 0;
+  /* border-top:1px solid var(--border); */
 }
 .bottom-nav a{flex:1;text-align:center;font-size:12px;color:var(--text);text-decoration:none}
 .bottom-nav a.active{color:var(--primary)}

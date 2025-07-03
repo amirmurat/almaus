@@ -7,6 +7,8 @@ import Announcements from './pages/Announcements';
 import Profile from './pages/Profile';
 import BottomNav from './components/BottomNav';
 import AssignmentDetails from './pages/AssignmentDetails';
+import AssignmentRecord from './pages/AssignmentRecord';
+import AssignmentSubmissions from './pages/AssignmentSubmissions';
 
 export default function App() {
   const loggedIn = localStorage.getItem('token');
@@ -23,6 +25,8 @@ export default function App() {
         <Route path="/schedule"      element={<Schedule />} />
         <Route path="/assignments"   element={<Assignments />} />
         <Route path="/assignments/:id"    element={<AssignmentDetails />} />
+        <Route path="/assignments/:id/record" element={<AssignmentRecord />} />
+        <Route path="/assignments/:id/submissions" element={<AssignmentSubmissions />} />
         <Route path="/announcements" element={<Announcements />} />
         <Route path="/profile"       element={<Profile />} />
       </Routes>
