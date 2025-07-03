@@ -21,13 +21,13 @@ const getTimeRemaining = (deadlineStr, id) => {
   if (diff <= 0) return null;
 
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  if (days > 0) return `(осталось ${days} д.)`;
+  if (days > 0) return `осталось ${days} д.`;
 
   const hours = Math.floor(diff / (1000 * 60 * 60));
-  if (hours > 0) return `(осталось ${hours} ч.)`;
+  if (hours > 0) return `осталось ${hours} ч.`;
 
   const minutes = Math.floor(diff / (1000 * 60));
-  if (minutes > 0) return `(осталось ${minutes} мин.)`;
+  if (minutes > 0) return `осталось ${minutes} мин.`;
 
   return null;
 };
@@ -65,16 +65,18 @@ export default function AssignmentCard({ task, hideSubject, isPastDeadline }) {
         }}
       >
         <div style={{ flex: 1 }}>
-          {!hideSubject && <h4>{subject}</h4>}
-          <p>{title}</p>
-          <small>
-            до {formatDateTime(deadline, id)}
+          {!hideSubject && <h4 style={{fontSize:16,fontWeight:500,marginBottom:4,marginTop:0}}>{subject}</h4>}
+          <p style={{fontSize:15,fontWeight:500,margin:'0 0 2px 0'}}>{title}</p>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <small style={{fontSize:13,color:'#888'}}>
+              до {formatDateTime(deadline, id)}
+            </small>
             {remainingTime && (
-              <span style={{ color: 'var(--accent-red, #d32f2f)', fontWeight: 500, marginLeft: 4 }}>
+              <span style={{ color: 'var(--accent-red, #d32f2f)', fontWeight: 500, fontSize:13, marginLeft: 8, whiteSpace:'nowrap' }}>
                 {remainingTime}
               </span>
             )}
-          </small>
+          </div>
         </div>
       </div>
     </Link>

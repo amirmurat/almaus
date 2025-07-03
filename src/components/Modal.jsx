@@ -29,7 +29,7 @@ export default function Modal({ open, onClose, children }) {
         {children}
         <button onClick={onClose} style={{
           marginTop: 24, width: '100%', padding: '12px 0',
-          background: 'var(--primary, #1976d2)', color: '#fff', border: 'none', borderRadius: 10,
+          background: 'var(--primary, #1976d2)', color: '#fff', border: 'none', borderRadius: 0,
           fontWeight: 500, fontSize: 16, cursor: 'pointer', letterSpacing: 0.5, boxShadow: '0 2px 8px #1976d222'
         }}>ОК</button>
       </div>

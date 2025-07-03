@@ -37,12 +37,12 @@
 .schedule-card-subject {
   display: flex;
   align-items: center;
-  font-size: 15px;
+  font-size: 16px;
   margin-bottom: 4px;
   word-break: break-word;
 }
 .schedule-card-time, .schedule-card-interval {
-  font-size: 12px;
+  font-size: 13px;
   color: #888;
   word-break: break-word;
 }
@@ -54,13 +54,13 @@
   justify-content: space-between;
 }
 .schedule-card-room {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 400;
   margin-bottom: 4px;
   word-break: break-word;
 }
 .schedule-card-status {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   word-break: break-word;
 }
@@ -137,10 +137,10 @@
     min-height: 36px;
   }
   .schedule-card-subject {
-    font-size: 13px;
+    font-size: 14px;
   }
   .schedule-card-time, .schedule-card-interval, .schedule-card-room, .schedule-card-status {
-    font-size: 11px;
+    font-size: 12px;
   }
   .schedule-card-right {
     min-width: 64px;
@@ -161,10 +161,10 @@
     min-height: 56px;
   }
   .schedule-card-subject {
-    font-size: 17px;
+    font-size: 18px;
   }
   .schedule-card-time, .schedule-card-interval, .schedule-card-room, .schedule-card-status {
-    font-size: 14px;
+    font-size: 15px;
   }
   .schedule-card-right {
     min-width: 120px;
@@ -220,7 +220,7 @@
 .schedule-card-subject {
   display: flex;
   align-items: center;
-  font-size: 15px;
+  font-size: 16px;
   margin-bottom: 4px;
   word-break: break-word;
 }
@@ -238,7 +238,7 @@
     margin-right: 6px;
   }
   .schedule-card-subject {
-    font-size: 13px;
+    font-size: 14px;
   }
 }
 @media (min-width: 900px) {
@@ -306,4 +306,8 @@
   .schedule-root {
     padding: 32px;
   }
+}
+/* Убираем любые рамки у AssignmentCard */
+.card, .card.archived {
+  border: none !important;
 }

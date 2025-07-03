@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { fetchJson } from '../utils/api';
 import ScheduleCard, { ScheduleCardSkeleton } from '../components/ScheduleCard';
 import { loadDone, saveDone } from '../utils/doneStore';
@@ -14,6 +14,18 @@ export default function Schedule() {
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [doneSet, setDoneSet] = useState(loadDone());
   const [collapsedDays, setCollapsedDays] = useState([]);
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'calendar'
+  const [calendarMonth, setCalendarMonth] = useState(()=>{
+    const d = new Date();
+    d.setDate(1);
+    d.setHours(0,0,0,0);
+    return d;
+  });
+  const dayRefs = useRef({});
+  // swipe state
+  const swipe = useRef({x:0, y:0, active:false});
+  const [selectedDayModal, setSelectedDayModal] = useState(null);
+  const [selectedCalendarDay, setSelectedCalendarDay] = useState(null);
 
   useEffect(() => { fetchJson('schedule.json').then(d => setWeek(d.week)); }, []);
   useEffect(() => { fetchJson('assignments.json').then(setTasks); }, []);
@@ -37,10 +49,26 @@ export default function Schedule() {
     );
   }
 
-  // --- определяем сегодняшний день ---
+  // --- Календарь ---
   const todayDateObj = new Date();
   const pad = n => n.toString().padStart(2, '0');
   const todayISO = `${todayDateObj.getFullYear()}-${pad(todayDateObj.getMonth() + 1)}-${pad(todayDateObj.getDate())}`;
+  // Календарь для выбранного месяца
+  const monthStart = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1);
+  const monthEnd = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 0);
+  const daysInMonth = monthEnd.getDate();
+  // Собираем все даты с парами
+  const daysWithLessons = new Set((week||[]).map(d => d.date));
+  // Для сетки календаря
+  const firstDayIdx = (monthStart.getDay() + 6) % 7; // 0=Пн
+  const calendarDays = [];
+  for (let i = 0; i < firstDayIdx; ++i) calendarDays.push(null);
+  for (let d = 1; d <= daysInMonth; ++d) {
+    const dateStr = `${monthStart.getFullYear()}-${pad(monthStart.getMonth() + 1)}-${pad(d)}`;
+    calendarDays.push(dateStr);
+  }
+
+  // --- определяем сегодняшний день ---
   let todayIdx = week.findIndex(d => d.date === todayISO);
   if (todayIdx === -1) todayIdx = 0;
 
@@ -67,14 +95,15 @@ export default function Schedule() {
     const lessons = (day.lessons || []);
     if (lessons.length === 0) return null; // не показывать дни без пар
     const isCollapsed = collapsedDays.includes(day.date);
+    dayRefs.current[day.date] = dayRefs.current[day.date] || React.createRef();
     return (
-      <section key={day.date} style={{ padding: '0 8px', marginTop: isToday ? 12 : 20 }}>
+      <section key={day.date} ref={dayRefs.current[day.date]} style={{ padding: '0 8px', marginTop: isToday ? 12 : 20 }}>
         <h4
           style={{
-            margin: '8px 0',
-            fontWeight: isToday ? 700 : 500,
+          margin: '8px 0',
+          fontWeight: isToday ? 700 : 500,
             color: isToday ? 'var(--accent, #1976d2)' : 'var(--text)',
-            fontSize: 17,
+          fontSize: 17,
             opacity: isToday ? 1 : isPast ? 0.7 : 0.9,
             filter: isPast ? 'grayscale(0.08)' : 'none',
             cursor: 'pointer',
@@ -113,15 +142,15 @@ export default function Schedule() {
             const isPassed = status === 'passed';
             return (
               <div key={lesson.id} style={{ opacity: isPassed ? 0.6 : 1, transition: 'opacity 0.25s' }}>
-                <ScheduleCard
-                  lesson={lesson}
+          <ScheduleCard
+            lesson={lesson}
                   status={status}
-                  onClick={() => setSelectedLesson({ ...lesson, date: day.date })}
+            onClick={() => setSelectedLesson({ ...lesson, date: day.date })}
                   highlight={isToday && status === 'ongoing' ? 'current' : undefined}
-                  hasHomework={hasHomeworkFor(lesson, day.date)}
+            hasHomework={hasHomeworkFor(lesson, day.date)}
                   noIcon
                   noStripe
-                />
+          />
               </div>
             );
           })}
@@ -138,6 +167,11 @@ export default function Schedule() {
     setSelectedLesson(null); // закрыть модалку
   };
 
+  // Функция для заглавной буквы месяца
+  function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
   return (
     <div
       style={{
@@ -148,8 +182,145 @@ export default function Schedule() {
       }}
       className="schedule-root"
     >
+      {/* Вариант 1: Минимализм — только цвет текста, без фона, без скругления, без бордеров */}
+      <div style={{
+        position: 'sticky', top: 0, zIndex: 20, background: 'var(--bg,#fff)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '8px 0 8px 0', marginBottom: 16,
+        minHeight: 48
+      }}>
+        <div style={{width:'50%', display:'flex', justifyContent:'center'}}>
+          <button onClick={()=>setViewMode('list')} style={{
+            padding:'0 18px',fontSize:15,fontWeight:500,border:'none',
+            background:'none',
+            color:viewMode==='list'?'var(--primary,#1976d2)':'#23272f',
+            borderRadius:0,
+            cursor:'pointer',transition:'color 0.18s',
+            outline:'none',
+          }}>Список</button>
+        </div>
+        <div style={{width:'50%', display:'flex', justifyContent:'center'}}>
+          <button onClick={()=>setViewMode('calendar')} style={{
+            padding:'0 18px',fontSize:15,fontWeight:500,border:'none',
+            background:'none',
+            color:viewMode==='calendar'?'var(--primary,#1976d2)':'#23272f',
+            borderRadius:0,
+            cursor:'pointer',transition:'color 0.18s',
+            outline:'none',
+          }}>Календарь</button>
+        </div>
+      </div>
+
+      {/* Календарь-вид */}
+      {viewMode==='calendar' && (
+        <div
+          style={{margin:'0 0 24px 0',padding:'0 8px'}}
+          onTouchStart={e=>{swipe.current={x:e.touches[0].clientX,y:e.touches[0].clientY,active:true}}}
+          onTouchEnd={e=>{
+            if (!swipe.current.active) return;
+            const dx = e.changedTouches[0].clientX - swipe.current.x;
+            if (Math.abs(dx)>40) {
+              const next = new Date(calendarMonth);
+              next.setMonth(calendarMonth.getMonth() + (dx<0?1:-1));
+              setCalendarMonth(next);
+            }
+            swipe.current.active = false;
+          }}
+          onMouseDown={e=>{swipe.current={x:e.clientX,y:e.clientY,active:true}}}
+          onMouseUp={e=>{
+            if (!swipe.current.active) return;
+            const dx = e.clientX - swipe.current.x;
+            if (Math.abs(dx)>40) {
+              const next = new Date(calendarMonth);
+              next.setMonth(calendarMonth.getMonth() + (dx<0?1:-1));
+              setCalendarMonth(next);
+            }
+            swipe.current.active = false;
+          }}
+        >
+          <div style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
+            <span style={{
+              fontWeight:600,
+              fontSize:17,
+              color: (calendarMonth.getFullYear() === todayDateObj.getFullYear() && calendarMonth.getMonth() === todayDateObj.getMonth()) ? 'var(--primary,#1976d2)' : '#23272f'
+            }}>{capitalize(calendarMonth.toLocaleString('ru',{month:'long',year:'numeric'}))}</span>
+          </div>
+          <div style={{height:22}} />
+          <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:'0 8px',fontSize:13,color:'#23272f',marginBottom:8}}>
+            {['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map((d, idx) => {
+              const isTodayWeekday = idx === ((todayDateObj.getDay() + 6) % 7) &&
+                calendarMonth.getFullYear() === todayDateObj.getFullYear() &&
+                calendarMonth.getMonth() === todayDateObj.getMonth();
+              return (
+                <div key={d} style={{
+                  textAlign:'center',
+                  color: isTodayWeekday ? 'var(--primary,#1976d2)' : '#23272f',
+                  fontWeight: isTodayWeekday ? 700 : 500
+                }}>{d}</div>
+              );
+            })}
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:2}}>
+            {calendarDays.map((dateStr,i)=>{
+              if (!dateStr) return <div key={i} />;
+              const isCurrentMonth = calendarMonth.getFullYear() === todayDateObj.getFullYear() && calendarMonth.getMonth() === todayDateObj.getMonth();
+              const isToday = isCurrentMonth && dateStr === todayISO;
+              // Найти day из week по дате
+              const dayObj = week.find(d => d.date === dateStr);
+              const hasLessons = dayObj && dayObj.lessons && dayObj.lessons.length > 0;
+              const isSelected = hasLessons && selectedCalendarDay === dateStr;
+              return (
+                <button key={dateStr} style={{
+                  aspectRatio:'1/1',width:'100%',border:'none',background:'none',cursor:'pointer',
+                  color: isSelected ? 'var(--primary,#1976d2)' : isToday ? 'var(--primary,#1976d2)' : hasLessons ? '#111' : '#bbb',
+                  borderRadius: 0,
+                  fontWeight: isSelected || isToday ? 700 : 500,
+                  position:'relative',transition:'background 0.18s,color 0.18s',
+                  outline: 'none',
+                  zIndex:1,
+                  background: 'none'
+                }}
+                  onClick={() => {
+                    if (hasLessons) {
+                      setSelectedCalendarDay(dateStr);
+                      setSelectedDayModal(dayObj);
+                    }
+                  }}
+                  tabIndex={0}
+                  title={dateStr}
+                >
+                  {+dateStr.split('-')[2]}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Список-вид */}
+      {viewMode==='list' && (
+        <>
       {week.map(renderDay)}
+        </>
+      )}
       <LessonModal lesson={selectedLesson} onClose={() => setSelectedLesson(null)} tasks={tasks} doneSet={doneSet} onMarkDone={handleMarkDone} />
+      {/* Модалка с парами выбранного дня из календаря */}
+      {selectedDayModal && (
+        <Modal open={!!selectedDayModal} onClose={() => { setSelectedDayModal(null); setSelectedCalendarDay(null); }}>
+          <div style={{minWidth:220,maxWidth:340}}>
+            <div style={{fontWeight:700,fontSize:18,marginBottom:8,letterSpacing:0.2}}>
+              {weekdayI18n[new Date(selectedDayModal.date).getDay() === 0 ? 6 : new Date(selectedDayModal.date).getDay() - 1]} • {selectedDayModal.date}
+            </div>
+            {selectedDayModal.lessons.map((lesson, idx) => (
+              <div key={lesson.id || idx} style={{marginBottom:14}}>
+                <div style={{fontWeight:600,fontSize:15,marginBottom:2}}>{lesson.subject}</div>
+                <div style={{fontSize:13,color:'#555'}}>{lesson.start}–{lesson.end} <span style={{color:'#bbb',marginLeft:8}}>ауд. <b>{lesson.room || '—'}</b></span></div>
+                {lesson.theme && <div style={{fontSize:13,color:'#1976d2',marginTop:2}}>Тема: <span style={{color:'var(--text)'}}>{lesson.theme}</span></div>}
+              </div>
+            ))}
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
@@ -219,8 +390,8 @@ function LessonModal({ lesson, onClose, tasks, doneSet, onMarkDone }) {
         {Object.keys(rest)
           .filter(key => !['id','type','theme','subject','start','end','room','status','intervals','date'].includes(key))
           .map(key => (
-            <div key={key} style={{ fontSize: 12, color: '#bbb' }}>{key}: {String(rest[key])}</div>
-          ))}
+          <div key={key} style={{ fontSize: 12, color: '#bbb' }}>{key}: {String(rest[key])}</div>
+        ))}
       </div>
     </Modal>
   );

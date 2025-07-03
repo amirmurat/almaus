@@ -69,8 +69,20 @@ export default function Assignments() {
   });
 
   return (
-    <div style={{ padding: '0 8px' }}>
+    <div style={{
+      padding: '16px',
+      maxWidth: 800,
+      margin: '0 auto',
+      boxSizing: 'border-box',
+    }}>
       {subjects.map(subject => {
+        // padding для секции, как у schedule
+        const sectionStyle = {
+          marginBottom: 18,
+          padding: '0 8px',
+          opacity: (!subjectMap[subject].active.length > 0 && subjectMap[subject].archived.length > 0) ? 0.6 : 1,
+          transition: 'opacity 0.25s'
+        };
         const isCollapsed = collapsedSubjects.includes(subject);
         const subjectData = subjectMap[subject];
         const hasActive = subjectData.active.length > 0;
@@ -80,13 +92,13 @@ export default function Assignments() {
         if (!hasActive && !hasArchive) return null;
 
         return (
-          <section key={subject} style={{ marginBottom: 18 }}>
+          <section key={subject} style={sectionStyle}>
             <h3
               style={{
                 margin: '18px 0 10px 0',
-                fontWeight: 700,
+                fontWeight: 500,
                 fontSize: 18,
-                color: 'var(--accent, #1976d2)',
+                color: '#23272f',
                 cursor: 'pointer',
                 userSelect: 'none',
                 display: 'flex',
@@ -100,10 +112,14 @@ export default function Assignments() {
               )}
             >
               {subject}
-              <span style={{ fontSize: 16, color: '#888' }}>
-                {hasActive ? subjectData.active.length : '—'}
+              <span style={{
+                display: 'inline-block',
+                transition: 'transform 0.2s',
+                transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+                width: 18, height: 18
+              }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </span>
-              <span style={{ fontSize: 16, color: '#888' }}>{isCollapsed ? '▼' : '▲'}</span>
             </h3>
             
             {/* --- Активные задачи --- */}
@@ -119,14 +135,22 @@ export default function Assignments() {
             {!isCollapsed && hasArchive && (
               <div style={{ marginTop: 12, paddingLeft: 12, borderLeft: '2px solid #eee' }}>
                 <h4
-                  style={{ cursor: 'pointer', userSelect: 'none', color: '#888', margin: '8px 0' }}
+                  style={{ cursor: 'pointer', userSelect: 'none', color: '#888', margin: '8px 0', display: 'flex', alignItems: 'center', gap: 6 }}
                   onClick={() => setCollapsedArchives(prev =>
                     prev.includes(subject)
                       ? prev.filter(s => s !== subject)
                       : [...prev, subject]
                   )}
                 >
-                  Архив {isArchiveCollapsed ? '▼' : '▲'}
+                  Архив
+                  <span style={{
+                    display: 'inline-block',
+                    transition: 'transform 0.2s',
+                    transform: isArchiveCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+                    width: 18, height: 18
+                  }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </span>
                 </h4>
                 {!isArchiveCollapsed && subjectData.archived.map(t => (
                   <AssignmentCard

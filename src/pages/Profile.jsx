@@ -25,7 +25,7 @@ export default function Profile() {
   };
 
   return (
-    <div style={{ padding: 16 }}>
+    <div style={{ padding: 16, margin: 8, maxWidth: 680, boxSizing: 'border-box' }}>
       <h2>Профиль студента</h2>
 
       {/* переключатель темы */}
