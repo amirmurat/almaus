@@ -41,6 +41,8 @@ export default function Announcements() {
   // Сохраняем прочитанные анонсы
   useEffect(() => {
     localStorage.setItem('read_announcements', JSON.stringify(read));
+    // Отправляем событие для обновления индикатора в BottomNav
+    window.dispatchEvent(new Event('announcementsRead'));
   }, [read]);
 
   // Автоматически сворачиваем секции без непрочитанных анонсов (кроме urgent)
@@ -54,7 +56,6 @@ export default function Announcements() {
       categoryMap[cat].push(n);
     });
     Object.keys(categoryMap).forEach(cat => {
-      if (cat === 'urgent') return;
       const hasUnread = categoryMap[cat].some(n => !read.includes(n.id));
       if (!hasUnread) newCollapsed.push(cat);
     });
@@ -122,6 +123,9 @@ export default function Announcements() {
         </div>
         {categories.map(cat => {
           const isCollapsed = collapsed.includes(cat);
+          const hasUnread = categoryMap[cat].some(n => !read.includes(n.id));
+          // Для категории 'urgent' больше не меняем название
+          const categoryTitle = CATEGORY_LABELS[cat] || cat;
           return (
             <section key={cat} style={{ marginBottom: 18, padding: '0 8px' }}>
               <h3
@@ -129,14 +133,14 @@ export default function Announcements() {
                 style={{
                   margin: '18px 0 10px 0',
                   fontSize: '18px',
-                  color: '#23272f',
+                  color: cat === 'urgent' && hasUnread ? '#d32f2f' : '#23272f',
                   cursor: 'pointer',
                   userSelect: 'none',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 6,
-                  opacity: categoryMap[cat].some(n => !read.includes(n.id)) ? 1 : 0.5,
-                  transition: 'opacity .18s',
+                  justifyContent: 'space-between', // стрелка справа
+                  fontWeight: hasUnread ? 700 : 400,
+                  transition: 'font-weight .18s, color .18s',
                 }}
                 onClick={() => setCollapsed(prev =>
                   prev.includes(cat)
@@ -144,7 +148,7 @@ export default function Announcements() {
                     : [...prev, cat]
                 )}
               >
-                {CATEGORY_LABELS[cat] || cat}
+                {categoryTitle}
                 <span style={{
                   display: 'inline-block',
                   transition: 'transform 0.2s',
@@ -167,8 +171,10 @@ export default function Announcements() {
                         key={n.id}
                         style={{ 
                           cursor: 'pointer', 
-                          transition: 'opacity .18s',
-                          opacity: read.includes(n.id) ? 0.5 : 1
+                          transition: 'font-weight .18s, color .18s, opacity .18s',
+                          fontWeight: read.includes(n.id) ? 400 : 700,
+                          color: cat === 'urgent' && !read.includes(n.id) ? '#d32f2f' : undefined,
+                          opacity: read.includes(n.id) ? 0.6 : 1
                         }}
                         onClick={() => {
                           if (!read.includes(n.id)) {

@@ -2,6 +2,16 @@ import { useState } from 'react';
 import { useTheme } from '../theme';
 
 export default function Profile() {
+  // Примерные данные для статистики (заглушка)
+  const [gpa] = useState(3.72);
+  const [gpaPrev] = useState(3.60);
+  const [passed] = useState(8);
+  const [total] = useState(10);
+  const [best] = useState({ subject: 'Математика', grade: 'A' });
+  const [worst] = useState({ subject: 'История', grade: 'C' });
+  const gpaDelta = gpa - gpaPrev;
+  const gpaDeltaStr = gpaDelta > 0 ? `+${gpaDelta.toFixed(2)}` : gpaDelta.toFixed(2);
+  const gpaDeltaColor = gpaDelta > 0 ? '#388e3c' : gpaDelta < 0 ? '#d32f2f' : '#888';
   const { theme, toggle } = useTheme();
 
   /* блок смены PIN – оставляем без изменений */
@@ -25,7 +35,38 @@ export default function Profile() {
   };
 
   return (
-    <div style={{ padding: 16, margin: 8, maxWidth: 680, boxSizing: 'border-box' }}>
+    <div style={{ maxWidth: 680, margin: '0 auto', padding: 16 }}>
+      {/* GPA статистика */}
+      <div style={{
+        background: 'var(--card, #fff)',
+        borderRadius: 16,
+        boxShadow: '0 2px 8px 0 rgba(60,60,60,0.07)',
+        padding: 20,
+        marginBottom: 24,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        gap: 10,
+      }}>
+        <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 2 }}>GPA: {gpa.toFixed(2)}
+          <span style={{
+            fontSize: 16,
+            fontWeight: 500,
+            color: gpaDeltaColor,
+            marginLeft: 10,
+            verticalAlign: 'middle',
+          }}>
+            {gpaDelta > 0 ? '↑' : gpaDelta < 0 ? '↓' : ''} {gpaDeltaStr} за семестр
+          </span>
+        </div>
+        {/* Мини-график (заглушка) */}
+        <div style={{ width: 120, height: 32, background: '#e3e3e3', borderRadius: 8, margin: '4px 0' }}>
+          {/* Здесь может быть мини-график GPA */}
+        </div>
+        <div style={{ fontSize: 15 }}>Сдано предметов: <b>{passed}/{total}</b></div>
+        <div style={{ fontSize: 15 }}>Лучший предмет: <b>{best.subject} ({best.grade})</b></div>
+        <div style={{ fontSize: 15 }}>Худший предмет: <b>{worst.subject} ({worst.grade})</b></div>
+      </div>
       <h2>Профиль студента</h2>
 
       {/* переключатель темы */}

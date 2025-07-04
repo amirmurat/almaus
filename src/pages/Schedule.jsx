@@ -107,7 +107,7 @@ export default function Schedule() {
             filter: isPast ? 'grayscale(0.08)' : 'none',
             cursor: 'pointer',
             userSelect: 'none',
-            display: 'flex', alignItems: 'center', gap: 8
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', // стрелка справа
           }}
           onClick={() => {
             setCollapsedDays(prev =>

@@ -9,6 +9,7 @@ import BottomNav from './components/BottomNav';
 import AssignmentDetails from './pages/AssignmentDetails';
 import AssignmentRecord from './pages/AssignmentRecord';
 import AnnouncementDetails from './pages/AnnouncementDetails';
+import Services from './pages/Services';
 
 export default function App() {
   const loggedIn = localStorage.getItem('token');
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/announcements" element={<Announcements />} />
         <Route path="/announcements/:id" element={<AnnouncementDetails />} />
         <Route path="/profile"       element={<Profile />} />
+        <Route path="/services"      element={<Services />} />
       </Routes>
       <BottomNav />
     </>

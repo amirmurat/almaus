@@ -21,8 +21,19 @@ export default function AnnouncementDetails() {
       .then(r => r.json())
       .then(list => {
         const found = list.find(n => String(n.id) === String(id));
-        if (found) setNote(found);
-        else setNotFound(true);
+        if (found) {
+          setNote(found);
+          // Отмечаем анонс как прочитанный
+          const read = JSON.parse(localStorage.getItem('read_announcements') || '[]');
+          if (!read.includes(found.id)) {
+            const newRead = [...read, found.id];
+            localStorage.setItem('read_announcements', JSON.stringify(newRead));
+            // Отправляем событие для обновления индикатора
+            window.dispatchEvent(new Event('announcementsRead'));
+          }
+        } else {
+          setNotFound(true);
+        }
       });
   }, [id]);
 

@@ -14,7 +14,6 @@ export default function AssignmentRecord() {
   const type = new URLSearchParams(location.search).get('type'); // 'screen' | 'camera'
   const { id } = useParams();
   const [recording, setRecording] = useState(false);
-  const [stream, setStream] = useState(null);
   const [recorder, setRecorder] = useState(null);
   const [fragments, setFragments] = useState([]); // массив Blob
   const [previewUrl, setPreviewUrl] = useState(null); // итоговое видео
@@ -38,7 +37,6 @@ export default function AssignmentRecord() {
       } else {
         mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       }
-      setStream(mediaStream);
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
         videoRef.current.play().catch(()=>{});
@@ -57,7 +55,6 @@ export default function AssignmentRecord() {
       rec.onstop = async () => {
         const blob = new Blob(chunksRef.current, { type: mimeType });
         if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
-        setStream(null);
         setRecording(false);
         setLoading(true);
         // Проверка: если есть фрагменты, сравнить размеры видео

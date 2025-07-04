@@ -51,10 +51,9 @@ function ScheduleCard({ lesson, status, onClick, highlight, hasHomework, noIcon,
   const isPassed = status === 'passed';
   const card = (
     <div
-      className={`schedule-card schedule-card-modern ${highlightClass}`}
+      className={`schedule-card schedule-card-modern ${highlightClass}${isPassed ? ' schedule-card-passed' : ''}`}
       style={{
-        opacity: forceOpaque ? 1 : (isPassed ? 0.55 : 1),
-        color: isPassed && !forceOpaque ? '#888' : 'inherit',
+        color: 'inherit',
         filter: isPassed && !forceOpaque ? 'grayscale(0.2)' : 'none',
         fontSize: 15,
       }}
