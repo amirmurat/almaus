@@ -5,11 +5,14 @@ import { loadDone, saveDone } from '../utils/doneStore';
 import '../components/ScheduleCard.css';
 import Modal from '../components/Modal';
 import { useNavigate } from 'react-router-dom';
+import { getScheduleForGroup } from '../utils/scheduleAPI';
+import { getProfile } from '../utils/profileAPI';
 
 const weekdayI18n = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 
 export default function Schedule() {
   const [week, setWeek] = useState(null);   // schedule.json
+  const [allSchedule, setAllSchedule] = useState(null); // все расписание для календаря
   const [tasks, setTasks] = useState(null); // assignments.json
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [doneSet, setDoneSet] = useState(loadDone());
@@ -26,8 +29,92 @@ export default function Schedule() {
   const swipe = useRef({x:0, y:0, active:false});
   const [selectedDayModal, setSelectedDayModal] = useState(null);
   const [selectedCalendarDay, setSelectedCalendarDay] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => { fetchJson('schedule.json').then(d => setWeek(d.week)); }, []);
+  // Получаем профиль пользователя (группа)
+  useEffect(() => {
+    async function fetchSchedule() {
+      setLoading(true);
+      setError(null);
+      try {
+        // Получить профиль (заменить на реальный studentId)
+        const studentId = 'cmcpr60vq0008cxv87eo5ww0o';
+        const profile = await getProfile(studentId);
+        const groupName = profile.student.groupName;
+        if (!groupName) {
+          setError('У пользователя не указана группа');
+          setWeek([]);
+          setLoading(false);
+          return;
+        }
+        // Получить расписание с backend
+        const schedule = await getScheduleForGroup(groupName);
+        
+        // Для календаря: все расписание по датам
+        const allByDate = {};
+        for (const lesson of schedule) {
+          if (lesson.date) {
+            const dateStr = lesson.date.slice(0, 10); // YYYY-MM-DD
+            if (!allByDate[dateStr]) allByDate[dateStr] = [];
+            allByDate[dateStr].push({
+              id: lesson.id,
+              subject: lesson.subject,
+              teacher: lesson.teacher,
+              start: lesson.startTime,
+              end: lesson.endTime,
+              room: lesson.room,
+              lessonType: lesson.lessonType
+            });
+          }
+        }
+        const allScheduleArr = Object.entries(allByDate)
+          .map(([date, lessons]) => ({ date, lessons }))
+          .sort((a, b) => a.date.localeCompare(b.date));
+        setAllSchedule(allScheduleArr);
+        
+        // Для списка: найти ближайшую неделю, которая есть в расписании
+        const today = new Date();
+        const todayStr = today.toISOString().slice(0, 10);
+        
+        // Найти ближайший понедельник (если сб/вс — следующий, иначе — текущий)
+        let weekStart = new Date(today);
+        const dayOfWeek = weekStart.getDay(); // 0=вс, 1=пн, ..., 6=сб
+        if (dayOfWeek === 6) { // суббота
+          weekStart.setDate(weekStart.getDate() + 2); // следующий понедельник
+        } else if (dayOfWeek === 0) { // воскресенье
+          weekStart.setDate(weekStart.getDate() + 1); // следующий понедельник
+        } else {
+          weekStart.setDate(weekStart.getDate() - dayOfWeek + 1); // текущий понедельник
+        }
+        
+        // Найти ближайшие 5 дней с парами после текущей даты
+        const todayDate = new Date(today);
+        const futureDays = allScheduleArr.filter(day => {
+          const dayDate = new Date(day.date);
+          return dayDate >= todayDate;
+        });
+        
+        // Берём первые 5 дней с парами
+        const weekSchedule = futureDays.slice(0, 5);
+        
+        // Отладка
+        console.log('🔍 Отладка недели:');
+        console.log('weekStart:', weekStart.toISOString().slice(0, 10));
+        console.log('allSchedule даты:', allScheduleArr.slice(0, 5).map(d => d.date));
+        console.log('weekSchedule даты:', weekSchedule.map(d => d.date));
+        
+        setWeek(weekSchedule);
+      } catch (e) {
+        setError('Ошибка загрузки расписания');
+        setWeek([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchSchedule();
+  }, []);
+
   useEffect(() => { fetchJson('assignments.json').then(setTasks); }, []);
   useEffect(() => { saveDone(doneSet); }, [doneSet]);
   useEffect(() => {
@@ -41,12 +128,18 @@ export default function Schedule() {
     }
   }, [week]);
 
-  if (!week || !tasks) {
+  if (loading) {
     return (
       <div style={{ padding: '24px 8px 0 8px' }}>
         {[...Array(4)].map((_, i) => <ScheduleCardSkeleton key={i} />)}
       </div>
     );
+  }
+  if (error) {
+    return <div style={{ padding: 32, color: '#d32f2f', textAlign: 'center' }}>{error}</div>;
+  }
+  if (!week || week.length === 0) {
+    return <div style={{ padding: 32, color: '#888', textAlign: 'center' }}>Нет расписания</div>;
   }
 
   // --- Календарь ---
@@ -57,8 +150,7 @@ export default function Schedule() {
   const monthStart = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1);
   const monthEnd = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 0);
   const daysInMonth = monthEnd.getDate();
-  // Собираем все даты с парами
-  const daysWithLessons = new Set((week||[]).map(d => d.date));
+
   // Для сетки календаря
   const firstDayIdx = (monthStart.getDay() + 6) % 7; // 0=Пн
   const calendarDays = [];
@@ -103,12 +195,12 @@ export default function Schedule() {
           margin: '8px 0',
           fontWeight: isToday ? 700 : 500,
             color: isToday ? 'var(--accent, #1976d2)' : 'var(--text)',
-          fontSize: 17,
+          fontSize: '18px',
             opacity: isToday ? 1 : isPast ? 0.7 : 0.9,
             filter: isPast ? 'grayscale(0.08)' : 'none',
             cursor: 'pointer',
             userSelect: 'none',
-            display: 'flex', alignItems: 'center', gap: 8
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', // стрелка справа
           }}
           onClick={() => {
             setCollapsedDays(prev =>
@@ -265,21 +357,53 @@ export default function Schedule() {
               if (!dateStr) return <div key={i} />;
               const isCurrentMonth = calendarMonth.getFullYear() === todayDateObj.getFullYear() && calendarMonth.getMonth() === todayDateObj.getMonth();
               const isToday = isCurrentMonth && dateStr === todayISO;
-              // Найти day из week по дате
-              const dayObj = week.find(d => d.date === dateStr);
+              // Найти day из allSchedule по дате (для календаря используем все расписание)
+              const dayObj = allSchedule ? allSchedule.find(d => d.date === dateStr) : null;
               const hasLessons = dayObj && dayObj.lessons && dayObj.lessons.length > 0;
               const isSelected = hasLessons && selectedCalendarDay === dateStr;
+              const isPast = hasLessons && new Date(dateStr) < new Date(todayISO);
+              // ОТЛАДКА: выводим для первых 15 дней месяца
+              if (i < 15) {
+                console.log('Календарь:', {dateStr, todayISO, isToday, hasLessons, className: isToday && hasLessons ? 'calendar-today' : ''});
+              }
+              // Стили
+              let color = '#bbb';
+              let bg = 'none';
+              let cursor = 'default';
+              let fontWeight = 500;
+              let border = 'none';
+              if (hasLessons) {
+                if (isToday) {
+                  color = 'var(--primary,#1976d2)';
+                  fontWeight = 700;
+                  cursor = 'pointer';
+                  bg = 'rgba(25, 118, 210, 0.08)'; // светлый фон для сегодняшнего дня
+                  border = '2px solid var(--primary,#1976d2)';
+                } else if (isPast) {
+                  color = '#888'; // чуть светлее обычных, но не бледный
+                  cursor = 'pointer';
+                } else {
+                  color = '#111';
+                  cursor = 'pointer';
+                }
+              }
+              if (isSelected) {
+                color = 'var(--primary,#1976d2)';
+                fontWeight = 700;
+              }
               return (
-                <button key={dateStr} style={{
-                  aspectRatio:'1/1',width:'100%',border:'none',background:'none',cursor:'pointer',
-                  color: isSelected ? 'var(--primary,#1976d2)' : isToday ? 'var(--primary,#1976d2)' : hasLessons ? '#111' : '#bbb',
-                  borderRadius: 0,
-                  fontWeight: isSelected || isToday ? 700 : 500,
-                  position:'relative',transition:'background 0.18s,color 0.18s',
-                  outline: 'none',
-                  zIndex:1,
-                  background: 'none'
-                }}
+                <button
+                  key={dateStr}
+                  className={isToday ? 'calendar-today' : ''}
+                  style={{
+                    aspectRatio:'1/1',width:'100%',border: border || 'none',background:bg,cursor,
+                    color,
+                    borderRadius: 6,
+                    fontWeight,
+                    position:'relative',transition:'background 0.18s,color 0.18s',
+                    outline: 'none',
+                    zIndex:1
+                  }}
                   onClick={() => {
                     if (hasLessons) {
                       setSelectedCalendarDay(dateStr);
@@ -288,6 +412,7 @@ export default function Schedule() {
                   }}
                   tabIndex={0}
                   title={dateStr}
+                  disabled={!hasLessons}
                 >
                   {+dateStr.split('-')[2]}
                 </button>
@@ -328,7 +453,7 @@ export default function Schedule() {
 function LessonModal({ lesson, onClose, tasks, doneSet, onMarkDone }) {
   const nav = useNavigate();
   if (!lesson) return null;
-  const { subject, start, end, room, status, intervals, date, ...rest } = lesson;
+  const { subject, start, end, room, status, intervals, date, teacher, ...rest } = lesson;
   // Найти все невыполненные задачи по предмету, у которых дедлайн не раньше даты урока
   let hw = [];
   if (tasks && subject && date) {
@@ -361,6 +486,9 @@ function LessonModal({ lesson, onClose, tasks, doneSet, onMarkDone }) {
           </div>
         )}
         <div style={{height:1,background:'var(--border,#eee)',margin:'16px 0 12px 0',opacity:0.5}} />
+        {/* Переводим teacher и убираем lessonType */}
+        {teacher && <div style={{ fontSize: 13, color: '#aaa', marginBottom: 2 }}>Преподаватель: {teacher}</div>}
+        {/* {rest.lessonType && <div style={{ fontSize: 13, color: '#aaa', marginBottom: 2 }}>lessonType: {rest.lessonType}</div>} */}
         {hw.length > 0 && (
           <div>
             <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 10, letterSpacing:0.1 }}>Домашние задания:</div>
@@ -388,7 +516,7 @@ function LessonModal({ lesson, onClose, tasks, doneSet, onMarkDone }) {
           </div>
         )}
         {Object.keys(rest)
-          .filter(key => !['id','type','theme','subject','start','end','room','status','intervals','date'].includes(key))
+          .filter(key => !['id','type','theme','subject','start','end','room','status','intervals','date','teacher','lessonType'].includes(key))
           .map(key => (
           <div key={key} style={{ fontSize: 12, color: '#bbb' }}>{key}: {String(rest[key])}</div>
         ))}

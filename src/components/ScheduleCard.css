@@ -311,3 +311,11 @@
 .card, .card.archived {
   border: none !important;
 }
+.schedule-card-passed {
+  opacity: 0.9 !important;
+  transition: opacity 0.18s;
+}
+.schedule-card-passed .schedule-card-divider {
+  opacity: 1 !important;
+  background: var(--border, #e0e0e0) !important;
+}

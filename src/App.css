@@ -36,3 +36,19 @@
     transform: rotate(360deg);
   }
 }
+
+.announcements-list {
+  margin-left: 24px;
+}
+@media (min-width: 900px) {
+  .announcements-list {
+    margin-left: 40px;
+  }
+}
+
+.calendar-today {
+  color: var(--primary, #1976d2) !important;
+  border-radius: 6px !important;
+  font-weight: 700 !important;
+  box-shadow: none;
+}

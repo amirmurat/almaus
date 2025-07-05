@@ -96,13 +96,13 @@ export default function Assignments() {
               style={{
                 margin: '18px 0 10px 0',
                 fontWeight: 500,
-                fontSize: 18,
+                fontSize: '18px',
                 color: '#23272f',
                 cursor: 'pointer',
                 userSelect: 'none',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 6,
+                justifyContent: 'space-between', // стрелка справа
               }}
               onClick={() => setCollapsedSubjects(prev =>
                 prev.includes(subject)
@@ -140,7 +140,7 @@ export default function Assignments() {
               {hasArchive && (
                 <div style={{ marginTop: 12, paddingLeft: 12, borderLeft: '2px solid #eee' }}>
                   <h4
-                    style={{ cursor: 'pointer', userSelect: 'none', color: '#888', margin: '8px 0', display: 'flex', alignItems: 'center', gap: 6 }}
+                    style={{ cursor: 'pointer', userSelect: 'none', color: '#888', margin: '8px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
                     onClick={() => setCollapsedArchives(prev =>
                       prev.includes(subject)
                         ? prev.filter(s => s !== subject)
