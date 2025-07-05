@@ -26,7 +26,7 @@ export default function Services() {
     {
       title: 'Профиль',
       icon: <MdPerson style={{fontSize: 24, color: '#23272f'}} />,
-      path: '/profile-page',
+      path: '/profile',
       description: 'Личные данные и настройки'
     }
   ];

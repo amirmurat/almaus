@@ -1,101 +1,271 @@
-import { useState } from 'react';
-import { useTheme } from '../theme';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FaUser, FaMoon, FaSun, FaKey, FaSyncAlt, FaFilter } from 'react-icons/fa';
+import { getProfile } from '../utils/profileAPI';
 
 export default function Profile() {
-  // Примерные данные для статистики (заглушка)
-  const [gpa] = useState(3.72);
-  const [gpaPrev] = useState(3.60);
-  const [passed] = useState(8);
-  const [total] = useState(10);
-  const [best] = useState({ subject: 'Математика', grade: 'A' });
-  const [worst] = useState({ subject: 'История', grade: 'C' });
-  const gpaDelta = gpa - gpaPrev;
-  const gpaDeltaStr = gpaDelta > 0 ? `+${gpaDelta.toFixed(2)}` : gpaDelta.toFixed(2);
-  const gpaDeltaColor = gpaDelta > 0 ? '#388e3c' : gpaDelta < 0 ? '#d32f2f' : '#888';
-  const { theme, toggle } = useTheme();
+  const nav = useNavigate();
+  const [profileData, setProfileData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  /* блок смены PIN – оставляем без изменений */
-  const [showForm, setShowForm] = useState(false);
-  const [oldPin, setOldPin] = useState('');
-  const [newPin1, setNewPin1] = useState('');
-  const [newPin2, setNewPin2] = useState('');
-  const [msg, setMsg] = useState('');
+  // ID студента для тестирования (в реальном приложении это будет из авторизации)
+  const studentId = 'cmcpr60vq0008cxv87eo5ww0o'; // Реальный ID из базы данных
 
-  const save = (e) => {
-    e.preventDefault();
-    const saved = localStorage.getItem('pin') || '';
-    if (oldPin !== saved) return setMsg('❌ Старый PIN неверен');
-    if (newPin1.length !== 4 || /\D/.test(newPin1)) return setMsg('❌ Новый PIN = 4 цифры');
-    if (newPin1 !== newPin2) return setMsg('❌ Новый PIN не совпадает');
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await getProfile(studentId);
+        setProfileData(data);
+      } catch (err) {
+        console.error('Error fetching profile:', err);
+        setError('Ошибка загрузки профиля');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    localStorage.setItem('pin', newPin1);
-    sessionStorage.removeItem('pinOk');
-    setMsg('✅ PIN обновлён');
-    setShowForm(false);
-  };
+    fetchProfile();
+  }, [studentId]);
+
+  if (loading) {
+    return (
+      <div style={{ maxWidth: 680, margin: '0 auto', padding: 16 }}>
+        {/* Верхний навбар */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18, justifyContent: 'flex-start', minHeight: 40
+        }}>
+          <button
+            onClick={() => nav(-1)}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              color: '#23272f',
+              fontSize: 0,
+              transition: 'color 0.18s, transform 0.13s, opacity 0.13s',
+            }}
+            onPointerDown={e => { e.currentTarget.style.transform = 'scale(0.88)'; e.currentTarget.style.opacity = '0.7'; }}
+            onPointerUp={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.opacity = '1'; }}
+            onPointerLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.color = '#23272f'; }}
+            aria-label="Назад"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5"/>
+              <path d="M12 19l-7-7 7-7"/>
+            </svg>
+          </button>
+        </div>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: 200,
+          color: '#666',
+          fontSize: 16
+        }}>
+          Загрузка профиля...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ maxWidth: 680, margin: '0 auto', padding: 16 }}>
+        {/* Верхний навбар */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18, justifyContent: 'flex-start', minHeight: 40
+        }}>
+          <button
+            onClick={() => nav(-1)}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              color: '#23272f',
+              fontSize: 0,
+              transition: 'color 0.18s, transform 0.13s, opacity 0.13s',
+            }}
+            onPointerDown={e => { e.currentTarget.style.transform = 'scale(0.88)'; e.currentTarget.style.opacity = '0.7'; }}
+            onPointerUp={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.opacity = '1'; }}
+            onPointerLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.color = '#23272f'; }}
+            aria-label="Назад"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5"/>
+              <path d="M12 19l-7-7 7-7"/>
+            </svg>
+          </button>
+        </div>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: 200,
+          color: '#d32f2f',
+          fontSize: 16
+        }}>
+          {error}
+        </div>
+      </div>
+    );
+  }
+
+  if (!profileData) {
+    return (
+      <div style={{ maxWidth: 680, margin: '0 auto', padding: 16 }}>
+        {/* Верхний навбар */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18, justifyContent: 'flex-start', minHeight: 40
+        }}>
+          <button
+            onClick={() => nav(-1)}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              color: '#23272f',
+              fontSize: 0,
+              transition: 'color 0.18s, transform 0.13s, opacity 0.13s',
+            }}
+            onPointerDown={e => { e.currentTarget.style.transform = 'scale(0.88)'; e.currentTarget.style.opacity = '0.7'; }}
+            onPointerUp={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.opacity = '1'; }}
+            onPointerLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.color = '#23272f'; }}
+            aria-label="Назад"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5"/>
+              <path d="M12 19l-7-7 7-7"/>
+            </svg>
+          </button>
+        </div>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: 200,
+          color: '#666',
+          fontSize: 16
+        }}>
+          Данные профиля не найдены
+        </div>
+      </div>
+    );
+  }
+
+  const { student, gpa, statistics, academicInfo } = profileData;
+  const initials = student.name.split(' ').map(w => w[0]).join('').toUpperCase();
 
   return (
     <div style={{ maxWidth: 680, margin: '0 auto', padding: 16 }}>
-      {/* GPA статистика */}
+      {/* Верхний навбар */}
       <div style={{
-        background: 'var(--card, #fff)',
-        borderRadius: 16,
-        boxShadow: '0 2px 8px 0 rgba(60,60,60,0.07)',
-        padding: 20,
-        marginBottom: 24,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        gap: 10,
+        display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18, justifyContent: 'flex-start', minHeight: 40
       }}>
-        <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 2 }}>GPA: {gpa.toFixed(2)}
-          <span style={{
-            fontSize: 16,
-            fontWeight: 500,
-            color: gpaDeltaColor,
-            marginLeft: 10,
-            verticalAlign: 'middle',
-          }}>
-            {gpaDelta > 0 ? '↑' : gpaDelta < 0 ? '↓' : ''} {gpaDeltaStr} за семестр
-          </span>
-        </div>
-        {/* Мини-график (заглушка) */}
-        <div style={{ width: 120, height: 32, background: '#e3e3e3', borderRadius: 8, margin: '4px 0' }}>
-          {/* Здесь может быть мини-график GPA */}
-        </div>
-        <div style={{ fontSize: 15 }}>Сдано предметов: <b>{passed}/{total}</b></div>
-        <div style={{ fontSize: 15 }}>Лучший предмет: <b>{best.subject} ({best.grade})</b></div>
-        <div style={{ fontSize: 15 }}>Худший предмет: <b>{worst.subject} ({worst.grade})</b></div>
-      </div>
-      <h2>Профиль студента</h2>
-
-      {/* переключатель темы */}
-      <p>
-        Тема:&nbsp;
-        <button onClick={toggle} style={{ padding: '4px 12px', fontSize: 15, border: '1px solid #bbb', borderRadius: 6, background: 'none', cursor: 'pointer' }}>
-          {theme === 'light' ? 'Светлая' : 'Тёмная'}
+        <button
+          onClick={() => nav(-1)}
+          style={{
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            color: '#23272f',
+            fontSize: 0,
+            transition: 'color 0.18s, transform 0.13s, opacity 0.13s',
+          }}
+          onPointerDown={e => { e.currentTarget.style.transform = 'scale(0.88)'; e.currentTarget.style.opacity = '0.7'; }}
+          onPointerUp={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.opacity = '1'; }}
+          onPointerLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.color = '#23272f'; }}
+          aria-label="Назад"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5"/>
+            <path d="M12 19l-7-7 7-7"/>
+          </svg>
         </button>
-      </p>
-
-      {!showForm && (
-        <>
-          <button onClick={() => { setMsg(''); setShowForm(true); }}>
-            Изменить PIN
-          </button>
-          {msg && <p style={{ marginTop: 12 }}>{msg}</p>}
-        </>
-      )}
-
-      {showForm && (
-        <form onSubmit={save} style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 240 }}>
-          <input type="password" placeholder="Старый PIN" value={oldPin} onChange={e=>setOldPin(e.target.value.replace(/\D/g,'' ).slice(0,4))}/>
-          <input type="password" placeholder="Новый PIN" value={newPin1} onChange={e=>setNewPin1(e.target.value.replace(/\D/g,'' ).slice(0,4))}/>
-          <input type="password" placeholder="Повторите новый PIN" value={newPin2} onChange={e=>setNewPin2(e.target.value.replace(/\D/g,'' ).slice(0,4))}/>
-          {msg && <span style={{ color: msg.startsWith('✅') ? 'green' : 'red' }}>{msg}</span>}
-          <button>Сохранить</button>
-          <button type="button" onClick={() => setShowForm(false)}>Отмена</button>
-        </form>
-      )}
+      </div>
+      
+      {/* Аватар с инициалами */}
+      <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'flex-start', minHeight: 59, gap: 12 }}>
+        <div style={{
+          width: 59,
+          height: 59,
+          background: '#e3e3e3',
+          borderRadius: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 28,
+          color: '#b0b0b0',
+          boxShadow: '0 2px 8px 0 rgba(60,60,60,0.07)'
+        }}>
+          <FaUser />
+        </div>
+        <div style={{}}>
+          <div style={{ fontSize: 16, color: '#23272f', lineHeight: 1.2 }}>
+            {student.name}
+          </div>
+          <div style={{ fontSize: 14, color: '#666', lineHeight: 1.2, marginTop: 4 }}>
+            {(() => {
+              const sem = academicInfo?.currentSemester || 1;
+              let course;
+              if (sem >= 7) course = 3;
+              else if (sem >= 4) course = 2;
+              else course = 1;
+              return `${course} курс • ${sem} семестр`;
+            })()}
+          </div>
+          <div style={{ fontSize: 14, color: '#666', lineHeight: 1.2, marginTop: 2 }}>
+            {student.groupName} • {student.faculty}
+          </div>
+        </div>
+      </div>
+      
+      {/* GPA и статистика */}
+      <div style={{ marginTop: 24 }}>
+        <div style={{ fontSize: 16, color: '#23272f', marginBottom: 12 }}>
+          GPA: {gpa.overall}
+        </div>
+        
+        {/* GPA по семестрам */}
+        <div style={{ marginTop: 16 }}>
+          <div style={{ fontSize: 14, color: '#666', marginBottom: 8 }}>
+            По семестрам:
+          </div>
+          <div style={{ display: 'flex', gap: 24 }}>
+            {/* Левая колонка */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1, alignItems: 'center' }}>
+              {Object.entries(gpa.bySemester).slice(0, 4).map(([semester, gpaValue]) => (
+                <div key={semester} style={{ fontSize: 14, color: '#23272f' }}>
+                  {semester} семестр: {gpaValue}
+                </div>
+              ))}
+            </div>
+            {/* Правая колонка */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1, alignItems: 'center' }}>
+              {Object.entries(gpa.bySemester).slice(4, 8).map(([semester, gpaValue]) => (
+                <div key={semester} style={{ fontSize: 14, color: '#23272f' }}>
+                  {semester} семестр: {gpaValue}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -11,9 +11,7 @@ import AssignmentRecord from './pages/AssignmentRecord';
 import AnnouncementDetails from './pages/AnnouncementDetails';
 import Services from './pages/Services';
 import SubjectsPage from './pages/Subjects';
-import SubjectDetails from './pages/SubjectDetails';
 import Docs from './pages/Docs';
-import ProfilePage from './pages/ProfilePage';
 import Filter from './pages/Filter';
 
 export default function App() {
@@ -37,10 +35,8 @@ export default function App() {
         <Route path="/profile"       element={<Profile />} />
         <Route path="/services"      element={<Services />} />
         <Route path="/subjects"    element={<SubjectsPage />} />
-        <Route path="/subject/:subjectName" element={<SubjectDetails />} />
         <Route path="/filter"        element={<Filter />} />
         <Route path="/docs"          element={<Docs />} />
-        <Route path="/profile-page"  element={<ProfilePage />} />
       </Routes>
       <BottomNav />
     </>
